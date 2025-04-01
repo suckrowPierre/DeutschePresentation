@@ -13,6 +13,8 @@ format:
       data-background-size: 40%
 author: "Pierre-Louis Suckrow"
 embed-resources: false
+execute:
+  freeze: auto
 ---
 
 # Objective
@@ -107,7 +109,8 @@ print(f"f1: {deutsch(f1)}, f2: {deutsch(f2)}, f3: {deutsch(f3)}, f4: {deutsch(f4
 
 ![Deutsch Quantum Circuit](assets/imgs/deutsch.png)
 
-- Inital State $|1\rangle \otimes |0\rangle = |1\rangle|0\rangle = |1\rangle0\rangle$
+- Inital State: $|1\rangle \otimes |0\rangle = |1\rangle|0\rangle = |1\rangle0\rangle$
+- Goal: $|0\rangle$ should become $f(0) \oplus f(1)$
 - Circuit: $\begin{cases}0 & |(I \otimes P_0)(I \otimes H) \times U_f \times (H \otimes H)|10\rangle|^2 = 1\\ 1 & |(I \otimes P_1)(I \otimes H) \times U_f \times (H \otimes H)|10\rangle|^2 = 1\end{cases}$
 
 ## Elements
@@ -258,10 +261,15 @@ $$
 
 ![Unitary query gates](assets/imgs/oracle.png)
 
+For $f: \Sigma^n \rightarrow \Sigma^m$: $x \in \Sigma^n$ and $y \in \Sigma^m$
+
 - Standard form (bit flip oracle):  
   $$
   U_f |x\rangle|y\rangle = |x\rangle|y \oplus f(x)\rangle
   $$
+
+
+  $\oplus$ is bitwise XOR for example $011 \oplus 101 = 110$ 
 
 --- 
 
@@ -478,7 +486,8 @@ $$
 \begin{cases}
 (-1)^{f(0)}|-\rangle|0\rangle & \text{if } f(0) \oplus f(1) = 0 \\
 (-1)^{f(0)}|-\rangle|1\rangle & \text{if } f(0) \oplus f(1) = 1
-\end{cases}
+\end{cases}\\
+&=(-1)^{f(0)}|-\rangle|f(0) \oplus f(1)\rangle
 \end{align}
 $$
 
@@ -498,6 +507,13 @@ $$
 #### 3. $f_3(a): f(0)=1, f(1)=0 \Rightarrow f(0) \oplus f(1) = 1 \Rightarrow |\pi_3\rangle = -|-\rangle|1\rangle$ outcome: **$|1\rangle$ → balanced**
 
 #### 4. $f_4(a) = 1 \Rightarrow f(0) \oplus f(1) = 0 \Rightarrow |\pi_3\rangle = -|-\rangle|0\rangle$ outcome: **$|0\rangle$ → constant**
+
+---
+### What makes it work
+
+-  Initial Hadamard gates prepare the qubits in a state where they explore all possibilities at once
+- $U_f$ imprints the information of $f(x)$ onto the phase of qubit 1 (phase kickback)
+- A final Hadamard gate is applied to qubit 1, which creates constructive interference for the correct outcome and destructive interference for the incorrect one.
 
 
 ## Implementation - Numpy

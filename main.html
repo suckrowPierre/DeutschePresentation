@@ -235,6 +235,7 @@ Pierre-Louis Suckrow
 
 
 
+
 <li><a href="#/implementation---numpy" id="/toc-implementation---numpy">Implementation - Numpy</a></li>
 <li><a href="#/implementation---qiskit" id="/toc-implementation---qiskit">Implementation - Qiskit</a></li>
 </ul></li>
@@ -305,14 +306,14 @@ f_4 &amp; 11 &amp; 0
 <img data-src="assets/imgs/classic_circuit.png" class="r-stretch"></section>
 <section id="implementation-python" class="slide level2" data-auto-animate="true">
 <h2 data-id="quarto-animate-title">Implementation Python</h2>
-<div id="98d33f53" class="cell" data-execution_count="1">
+<div id="c98feff2" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy" data-id="quarto-animate-code"><code class="sourceCode python hljs"><span id="cb1-1" class="hljs-ln-code"><a href=""></a><span class="kw">def</span> deutsch(f):</span>
 <span id="cb1-2" class="hljs-ln-code"><a href=""></a>  <span class="cf">return</span> f(<span class="bn">0b0</span>) <span class="op">^</span> f(<span class="bn">0b1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="implementation-python-1" class="slide level2 unlisted" data-auto-animate="true">
 <h2 data-id="quarto-animate-title">Implementation Python</h2>
-<div id="bf38cea7" class="cell" data-execution_count="2">
+<div id="a96b90be" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy" data-id="quarto-animate-code"><code class="sourceCode python hljs"><span id="cb2-1" class="hljs-ln-code"><a href=""></a><span class="kw">def</span> deutsch(f):</span>
 <span id="cb2-2" class="hljs-ln-code"><a href=""></a>  <span class="cf">return</span> f(<span class="bn">0b0</span>) <span class="op">^</span> f(<span class="bn">0b1</span>)</span>
 <span id="cb2-3" class="hljs-ln-code"><a href=""></a></span>
@@ -343,7 +344,8 @@ f_4 &amp; 11 &amp; 0
 <h2>Circuit</h2>
 
 <img data-src="assets/imgs/deutsch.png" class="r-stretch quarto-figure-center"><p class="caption">Deutsch Quantum Circuit</p><ul>
-<li>Inital State <span class="math inline">\(|1\rangle \otimes |0\rangle = |1\rangle|0\rangle = |1\rangle0\rangle\)</span></li>
+<li>Inital State: <span class="math inline">\(|1\rangle \otimes |0\rangle = |1\rangle|0\rangle = |1\rangle0\rangle\)</span></li>
+<li>Goal: <span class="math inline">\(|0\rangle\)</span> should become <span class="math inline">\(f(0) \oplus f(1)\)</span></li>
 <li>Circuit: <span class="math inline">\(\begin{cases}0 &amp; |(I \otimes P_0)(I \otimes H) \times U_f \times (H \otimes H)|10\rangle|^2 = 1\\ 1 &amp; |(I \otimes P_1)(I \otimes H) \times U_f \times (H \otimes H)|10\rangle|^2 = 1\end{cases}\)</span></li>
 </ul>
 </section>
@@ -505,11 +507,13 @@ Queries are implemented as <strong>unitary operations</strong> (called <strong>o
 <li><p>Core idea: instead of checking inputs one-by-one, a quantum algorithm queries <strong>all inputs in superposition</strong></p></li>
 </ul>
 
-<img data-src="assets/imgs/oracle.png" class="r-stretch quarto-figure-center"><p class="caption">Unitary query gates</p><ul>
-<li>Standard form (bit flip oracle):<br>
+<img data-src="assets/imgs/oracle.png" class="r-stretch quarto-figure-center"><p class="caption">Unitary query gates</p><p>For <span class="math inline">\(f: \Sigma^n \rightarrow \Sigma^m\)</span>: <span class="math inline">\(x \in \Sigma^n\)</span> and <span class="math inline">\(y \in \Sigma^m\)</span></p>
+<ul>
+<li><p>Standard form (bit flip oracle):<br>
 <span class="math display">\[
 U_f |x\rangle|y\rangle = |x\rangle|y \oplus f(x)\rangle
-\]</span></li>
+\]</span></p>
+<p><span class="math inline">\(\oplus\)</span> is bitwise XOR for example <span class="math inline">\(011 \oplus 101 = 110\)</span></p></li>
 </ul>
 </section>
 <section class="slide level2">
@@ -708,7 +712,8 @@ For <span class="math inline">\(x=1\)</span>: <span class="math inline">\(|1\ran
 \begin{cases}
 (-1)^{f(0)}|-\rangle|0\rangle &amp; \text{if } f(0) \oplus f(1) = 0 \\
 (-1)^{f(0)}|-\rangle|1\rangle &amp; \text{if } f(0) \oplus f(1) = 1
-\end{cases}
+\end{cases}\\
+&amp;=(-1)^{f(0)}|-\rangle|f(0) \oplus f(1)\rangle
 \end{align}
 \]</span></p>
 <ul>
@@ -725,9 +730,18 @@ For <span class="math inline">\(x=1\)</span>: <span class="math inline">\(|1\ran
 <h4 id="f_3a-f01-f10-rightarrow-f0-oplus-f1-1-rightarrow-pi_3rangle---rangle1rangle-outcome-1rangle-balanced">3. <span class="math inline">\(f_3(a): f(0)=1, f(1)=0 \Rightarrow f(0) \oplus f(1) = 1 \Rightarrow |\pi_3\rangle = -|-\rangle|1\rangle\)</span> outcome: <strong><span class="math inline">\(|1\rangle\)</span> → balanced</strong></h4>
 <h4 id="f_4a-1-rightarrow-f0-oplus-f1-0-rightarrow-pi_3rangle---rangle0rangle-outcome-0rangle-constant">4. <span class="math inline">\(f_4(a) = 1 \Rightarrow f(0) \oplus f(1) = 0 \Rightarrow |\pi_3\rangle = -|-\rangle|0\rangle\)</span> outcome: <strong><span class="math inline">\(|0\rangle\)</span> → constant</strong></h4>
 </section>
+<section class="slide level2">
+
+<h3 id="what-makes-it-work">What makes it work</h3>
+<ul>
+<li>Initial Hadamard gates prepare the qubits in a state where they explore all possibilities at once</li>
+<li><span class="math inline">\(U_f\)</span> imprints the information of <span class="math inline">\(f(x)\)</span> onto the phase of qubit 1 (phase kickback)</li>
+<li>A final Hadamard gate is applied to qubit 1, which creates constructive interference for the correct outcome and destructive interference for the incorrect one.</li>
+</ul>
+</section>
 <section id="implementation---numpy" class="slide level2">
 <h2>Implementation - Numpy</h2>
-<div id="e3949c36" class="cell" data-execution_count="3">
+<div id="fcb5266d" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-2"><a href=""></a></span>
 <span id="cb4-3"><a href=""></a></span>
@@ -808,7 +822,7 @@ f4 -&gt; constant (expected constant)</code></pre>
 </section>
 <section id="implementation---qiskit" class="slide level2">
 <h2>Implementation - Qiskit</h2>
-<div id="56ee1650" class="cell" data-execution_count="4">
+<div id="0a3c23c1" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href=""></a><span class="im">from</span> qiskit <span class="im">import</span> QuantumCircuit, QuantumRegister, ClassicalRegister</span>
 <span id="cb6-2"><a href=""></a><span class="im">from</span> qiskit_aer <span class="im">import</span> AerSimulator</span>
 <span id="cb6-3"><a href=""></a><span class="im">from</span> qiskit.quantum_info <span class="im">import</span> Operator, Statevector</span>
