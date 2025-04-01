@@ -1,0 +1,19 @@
+[project]
+name = "quantum-playground"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "cirq>=0.5.556",
+    "ipyleaflet>=0.19.2",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.9.4",
+    "pylatexenc>=2.10",
+    "python-dotenv>=1.0.1",
+    "qiskit>=1.4.2",
+    "qiskit-aer>=0.17.0",
+    "qiskit-ibm-runtime>=0.37.0",
+    "rpcq>=3.11.0",
+    "shinylive>=0.8.2",
+]

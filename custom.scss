@@ -1,0 +1,45 @@
+/*-- scss:defaults --*/
+
+// fonts
+$font-family-sans-serif: "Helvetica Neue", sans-serif !default;
+
+// headings
+$presentation-heading-font: "Helvetica Neue", sans-serif !default;
+$presentation-heading-color: #000000 !default;
+
+// font size adjustment
+$base-font-size: 1.5em !default;
+
+/*-- scss:rules --*/
+
+// Apply the base font size
+.reveal {
+  font-size: $base-font-size;
+}
+
+// Make all headings bold
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  font-weight: bold;
+}
+
+.title, .quarto-title-author
+{
+  display: none;
+}
+
+.title-slide-background {
+  background-image: url('hund.png');
+  background-size: 75%;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 2em; /* This adds space around content, not the image */
+}
+
+.hidden-title h1{
+  display: none;
+}

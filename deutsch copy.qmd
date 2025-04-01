@@ -1,0 +1,655 @@
+---
+pagetitle: "Deutsch Algorithm"
+title: "Deutsch Algorithm"
+format:
+  revealjs:
+    slide-number: true
+    theme: [default, custom.scss]
+    toc: true
+    number-sections: false
+    title-slide-attributes:
+      data-background-image: hund.png
+      data-background-size: 40%
+author: "Pierre-Louis Suckrow"
+execute:
+  python: "../.venv/bin/python"
+---
+
+# Objective
+
+Tell if function $f: \Sigma \rightarrow \Sigma$ for $\Sigma=\{0,1\}$  is *balanced* or *constant*
+
+---
+
+<div style="display: flex;">
+<div>
+![](constant.png)
+$$
+\begin{array}{c|c|c}
+a & f_1(a)& f_4(a)\\ \hline 
+0 & 0 & 1\\ 
+1 & 0 & 1
+\end{array}
+$$
+
+</div>
+<div>
+![](balanced.png)
+$$
+\begin{array}{c|c|c}
+a & f_2(a)& f_3(a)\\ \hline 
+0 & 0 & 1\\ 
+1 & 1 & 0
+\end{array}
+$$
+</div>
+
+</div>
+
+# How to determine type of $f$ ?
+
+Algorithmn that returns $0$ for constant and $1$ for balanced 
+
+For two bits equal to *XOR*
+
+<div>
+$$
+\begin{array}{c|c|c}
+\text { function } & \text { bits } & \text{XOR } \oplus\\
+\hline f_1 & 00 & 0\\
+f_2 & 01 & 1\\
+f_3 & 10 & 1\\
+f_4 & 11 & 0
+\end{array}
+$$
+</div>
+
+# Classic Solution {.hidden-title}
+<div>
+![](classic.png){width=70% fig-align="center"}
+</div>
+
+## Circuit
+
+![](classic_circuit.png) 
+
+## Implementation Python {auto-animate="true"} 
+
+```{python}
+#| echo: true
+def deutsch(f):
+  return f(0b0) ^ f(0b1)
+```
+
+## Implementation Python {auto-animate=true .unlisted}
+
+```{python}
+#| echo: true
+def deutsch(f):
+  return f(0b0) ^ f(0b1)
+
+# functions: f1=0, f2=x, f3=1-x, f4=1
+f1 = lambda x: 0
+f2 = lambda x: x
+f3 = lambda x: 1 - x
+f4 = lambda x: 1
+
+print(f"f1: {deutsch(f1)}, f2: {deutsch(f2)}, f3: {deutsch(f3)}, f4: {deutsch(f4)}")
+
+```
+
+# Quantum Solution {.hidden-title}
+<div>
+![](quantum.png){width=70% fig-align="center"}
+</div>
+
+## Circuit
+
+![Deutsch Quantum Circuit](deutsch.png)
+
+- Inital State $|1\rangle \otimes |0\rangle = |1\rangle|0\rangle = |1\rangle0\rangle$
+- Circuit: $\begin{cases}0 & |(I \otimes P_0)(I \otimes H) \times U_f \times (H \otimes H)|10\rangle|^2 = 1\\ 1 & |(I \otimes P_1)(I \otimes H) \times U_f \times (H \otimes H)|10\rangle|^2 = 1\end{cases}$
+
+## Elements
+### Single Qubit
+
+- Qubit: Linear Combination $|\psi\rangle=a|0\rangle+b|1\rangle=\binom{a}{b}$
+- Must  have Euclidean Norm $\|\psi\|=\sqrt{\sum_{k=1}^n\left|\alpha_k\right|^2}=1$
+
+### Operation Single Qubit
+
+- Operation modeled as Unitary Matrix $U$ acting on $|\psi\rangle$
+
+$$
+U|\psi\rangle=\left(\begin{array}{ll}
+u_1 & u_2 \\
+u_3 & u_4
+\end{array}\right)\binom{a}{b}=\binom{u_1 a+u_2 b}{u_3 a+u_4 b}
+$$
+
+- Result is a new qubit state with preserved norm $\| U|\psi\rangle\|=\||\psi\rangle \|$
+
+- Multiple operations (e.g. $U_1$, $U_2$, $U_3$) applied in sequence act via **matrix multiplication**:  $U_{\text{total}} = U_3 U_2 U_1$  (Order matters not commutative)
+
+---
+
+### Hadamard Gate
+
+<div style="display: flex; align-items: flex-start; gap: 20px;">
+<div style="width: 40%">
+$$
+\begin{align}
+H&=\left(\begin{array}{cc}
+\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\
+\frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}}
+\end{array}\right) \\&=  \frac{1}{\sqrt{2}} \left(\begin{array}{cc}
+1 & 1 \\
+1 & -1
+\end{array}\right)
+\end{align}
+$$
+</div>
+
+  <div style="flex: 1;">
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+from qiskit.quantum_info import Statevector, Operator
+from qiskit.visualization import plot_bloch_multivector
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+
+def fig_to_img(fig):
+    """Convert a Matplotlib figure to a PIL Image using bbox_inches='tight' to include titles."""
+    buf = BytesIO()
+    fig.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    return Image.open(buf)
+
+# Hadamard operator
+H = 1 / np.sqrt(2) * np.array([[1, 1], [1, -1]])
+H = Operator(H)
+
+# Define the quantum states
+u0 = Statevector([1, 0])              # |0⟩
+u1 = Statevector([0, 1])              # |1⟩
+u_plus = u0.evolve(H)                 # |+⟩ = H|0⟩
+u_minus = u1.evolve(H)                # |−⟩ = H|1⟩
+
+# Generate Bloch sphere images with long titles
+fig0 = plot_bloch_multivector(u0, title=r"$|0\rangle=H|+\rangle$")
+fig1 = plot_bloch_multivector(u1, title=r"$|1\rangle=H|-\rangle$")
+fig_plus = plot_bloch_multivector(u_plus, title=r"$H|0\rangle=\frac{1}{\sqrt{2}}|0\rangle+\frac{1}{\sqrt{2}}|1\rangle=|+\rangle$")
+fig_minus = plot_bloch_multivector(u_minus, title=r"$H|1\rangle=\frac{1}{\sqrt{2}}|0\rangle-\frac{1}{\sqrt{2}}|1\rangle=|-\rangle$")
+
+img0 = fig_to_img(fig0)
+img1 = fig_to_img(fig1)
+img_plus = fig_to_img(fig_plus)
+img_minus = fig_to_img(fig_minus)
+
+# Setup layout for a 2x2 grid
+w, h = img0.width, img0.height
+margin = 50
+canvas_width = 2 * w + 3 * margin
+canvas_height = 2 * h + 3 * margin
+
+canvas = Image.new("RGBA", (canvas_width, canvas_height), "white")
+
+# Paste images in a grid:
+# Top-left: |0⟩, Top-right: |+⟩
+# Bottom-left: |1⟩, Bottom-right: |−⟩
+canvas.paste(img0, (margin, margin))
+canvas.paste(img_plus, (2 * margin + w, margin))
+canvas.paste(img1, (margin, 2 * margin + h))
+canvas.paste(img_minus, (2 * margin + w, 2 * margin + h))
+
+# Draw arrows
+draw = ImageDraw.Draw(canvas)
+arrow_thickness = 4
+arrow_size = 10
+
+# Double arrow function
+def draw_double_arrow(draw, start, end, label_pos, label):
+    # Draw line
+    draw.line([start, end], fill="black", width=arrow_thickness)
+    # Arrowhead at end (→)
+    draw.polygon([
+        (end[0], end[1]),
+        (end[0] - arrow_size, end[1] - arrow_size),
+        (end[0] - arrow_size, end[1] + arrow_size)
+    ], fill="black")
+    # Arrowhead at start (←)
+    draw.polygon([
+        (start[0], start[1]),
+        (start[0] + arrow_size, start[1] - arrow_size),
+        (start[0] + arrow_size, start[1] + arrow_size)
+    ], fill="black")
+    # Label text
+    draw.text(label_pos, label, fill="black", font=font)
+
+# Load font for text (use default if DejaVuSans.ttf is not available)
+try:
+    font = ImageFont.truetype("DejaVuSans.ttf", 20)
+except:
+    font = ImageFont.load_default()
+
+# Calculate positions for arrows
+y_top = margin + h // 2
+y_bottom = 2 * margin + h + h // 2
+x_left = margin + w
+x_right = 2 * margin + w
+
+# Draw bidirectional arrows between |0⟩ and |+⟩ (top row) 
+draw_double_arrow(draw, (x_left, y_top), (x_right, y_top),
+                  ((x_left + x_right) // 2 - 10, y_top - 30), "H")
+
+# Draw bidirectional arrows between |1⟩ and |−⟩ (bottom row)
+draw_double_arrow(draw, (x_left, y_bottom), (x_right, y_bottom),
+                  ((x_left + x_right) // 2 - 10, y_bottom - 30), "H")
+
+# Display final image (in Jupyter, use display; otherwise, .show() works on most systems)
+display(canvas)
+
+```
+  </div>
+</div>
+
+## Mutli Qubit System
+
+- If qubits are **not entangled**, the system state can be written as a **tensor product** of individual qubit states (**product states**):  
+  $|\psi\rangle \otimes |\phi\rangle = \begin{pmatrix} a \\ b \end{pmatrix} \otimes \begin{pmatrix} c \\ d \end{pmatrix} = 
+  \begin{pmatrix}
+  a c \\
+  a d \\
+  b c \\
+  b d
+  \end{pmatrix}$
+
+## Mutli Qubit System
+
+- In general, a two-qubit state has the form:  
+  $|\Psi\rangle = \alpha_{00}|00\rangle + \alpha_{01}|01\rangle + \alpha_{10}|10\rangle + \alpha_{11}|11\rangle = 
+  \begin{pmatrix} \alpha_{00} \\ \alpha_{01} \\ \alpha_{10} \\ \alpha_{11} \end{pmatrix}$  
+  with $\sum |\alpha_{ij}|^2 = 1$
+
+- Not every multi-qubit state is a product state:  
+  **Entangled states** cannot be written as a tensor product of single-qubit states  
+  Example: $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$ is entangled
+
+
+## Operations on Multi Qubit Systems
+
+- Operations on multi-qubit systems are represented by **unitary matrices** acting on the full state vector  
+  For 2 qubits: $U \in \mathbb{C}^{4 \times 4}$
+
+- If each qubit is operated on independently, use the **tensor product** of single-qubit gates:  
+  $(U \otimes V)(|\psi\rangle \otimes |\phi\rangle) = (U|\psi\rangle) \otimes (V|\phi\rangle)$
+
+## Operations on Multi Qubit Systems
+
+- Example: Apply Hadamard on qubit 1 and Identity on qubit 2:  
+  $H \otimes I = \frac{1}{\sqrt{2}} \begin{pmatrix}
+  1 & 0 & 1 & 0 \\
+  0 & 1 & 0 & 1 \\
+  1 & 0 & -1 & 0 \\
+  0 & 1 & 0 & -1
+  \end{pmatrix}$
+
+- Some gates act on multiple qubits **together** (e.g. entangling gates):  
+  - **CNOT**, **CZ**, **Toffoli**, etc.  
+  These cannot be decomposed into single-qubit gates
+
+## Query in Quantum Algorithms
+
+- A **query** accesses hidden information about a function $f: \{0,1\}^n \rightarrow \{0,1\}$. Asking for information from a "black-box"
+  
+- In classical computing:  
+  A query means evaluating $f(x)$ for a specific input $x$
+
+- In quantum computing:  
+  Queries are implemented as **unitary operations** (called **oracles**) . Act on quantum superpositions
+
+- Core idea: instead of checking inputs one-by-one, a quantum algorithm queries **all inputs in superposition**
+
+## Query Gate (Oracle)
+
+![Unitary query gates](oracle.png)
+
+
+- Standard form (bit flip oracle):  
+  $$
+  U_f |x\rangle|y\rangle = |x\rangle|y \oplus f(x)\rangle
+  $$
+
+## Constructing $U_f$ in Deutsch Algorithm
+
+In Deutsche Algorithm $y=1$
+
+#### 1. $f_1(x) = 0$ 
+  $$
+  \begin{align}
+  U_f |x\rangle|y\rangle &= |x\rangle|y \oplus f(x)\rangle= |x\rangle|y \oplus 0\rangle \\
+  &= |x\rangle|1 \oplus 0\rangle = |x\rangle|1 \rangle = |x\rangle|y\rangle
+  \end{align}
+  $$
+  $\Rightarrow U_f = I = \begin{pmatrix}
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{pmatrix}$
+
+## Constructing $U_f$ in Deutsch Algorithm
+
+In Deutsche Algorithm $y=1$
+
+#### 2. $f_2(x) = x$
+
+  $$
+  \begin{align}
+  U_f |x\rangle|y\rangle &= |x\rangle|y \oplus f(x)\rangle= |x\rangle|y \oplus x\rangle \\
+  \end{align}
+  $$
+For $x=0$: $|0\rangle|1 \oplus 0\rangle = |0\rangle|1\rangle = |x\rangle|y\rangle$\
+For $x=1$: $|1\rangle|1 \oplus 1\rangle = |1\rangle|0\rangle = |x\rangle|\lnot y\rangle$ \
+
+Flips $y$ when $x = 1$ ⇒ $U_f$ = CNOT $= \begin{pmatrix}
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 \\
+0 & 0 & 1 & 0
+\end{pmatrix}
+$
+
+## Constructing $U_f$ in Deutsch Algorithm
+
+In Deutsche Algorithm $y=1$
+
+#### 3. $f_3(x) = \bar{x}$ 
+
+  $$
+  \begin{align}
+  U_f |x\rangle|y\rangle &= |x\rangle|y \oplus f(x)\rangle= |x\rangle|y \oplus \bar x\rangle \\
+  \end{align}
+  $$
+For $x=0$: $|0\rangle|1 \oplus 1\rangle = |0\rangle|0\rangle = |x\rangle|\lnot y\rangle$\
+For $x=1$: $|1\rangle|1 \oplus 0\rangle = |1\rangle|1\rangle = |x\rangle| y\rangle$ \
+
+Flips $y$ when $x = 0$ ⇒ $U_f$ = CNOT with inverted control $=\begin{pmatrix}
+0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{pmatrix}$
+
+## Constructing $U_f$ in Deutsch Algorithm
+
+In Deutsche Algorithm $y=1$
+
+#### 4. $f_4(x) = 1$
+
+  $$
+  \begin{align}
+  U_f |x\rangle|y\rangle &= |x\rangle|y \oplus f(x)\rangle= |x\rangle|y \oplus 1\rangle \\
+  &= |x\rangle|1 \oplus 1\rangle = |x\rangle|0 \rangle = |x\rangle|\lnot y\rangle
+  \end{align}
+  $$
+  $\Rightarrow U_f = I$
+
+- Always flips $y$ $U_{f_4} = I \otimes X = \begin{pmatrix}
+0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 \\
+0 & 0 & 1 & 0
+\end{pmatrix}$
+
+
+
+
+
+## Measurement 
+
+- Measurement collapses a quantum state to one of the basis states with probabilities given by squared amplitudes
+
+- For a single qubit:  
+  $|\psi\rangle = a|0\rangle + b|1\rangle$  
+  - Probability of outcome **0**: $|a|^2$, collapses to $|0\rangle$  
+  - Probability of outcome **1**: $|b|^2$, collapses to $|1\rangle$
+
+## Measurement and Projection
+
+- Can be expressed using **projection matrices**:  
+  - $P_0 = |0\rangle\langle 0| = \begin{pmatrix}1 & 0 \\ 0 & 0\end{pmatrix}$  
+  - $P_1 = |1\rangle\langle 1| = \begin{pmatrix}0 & 0 \\ 0 & 1\end{pmatrix}$  
+  - Probability of outcome $i$: $\langle \psi | P_i | \psi \rangle$
+
+- $\langle\psi| P_0|\psi\rangle=\left(\begin{array}{ll}\bar{a} & \bar{b}\end{array}\right)\left(\begin{array}{ll}1 & 0 \\ 0 & 0\end{array}\right)\binom{a}{b}=\left(\begin{array}{ll}\bar{a} & \bar{b}\end{array}\right)\binom{a}{0}=\bar{a} a=|a|^2$
+- $\langle\psi| P_1|\psi\rangle=\left(\begin{array}{ll}\bar{a} & \bar{b}\end{array}\right)\left(\begin{array}{ll}0 & 0 \\ 0 & 1\end{array}\right)\binom{a}{b}=\left(\begin{array}{ll}\bar{a} & \bar{b}\end{array}\right)\binom{0}{b}=\bar{b} b=|b|^2$
+
+## Measurement and Projection
+
+- After measurement with outcome $i$:  
+  - State collapses to $\dfrac{P_i |\psi\rangle}{\sqrt{\langle \psi | P_i | \psi \rangle}}$
+
+- **Partial measurement**: measure only part of a multi-qubit system  
+  - Example: in a 2-qubit state, measure only the first qubit  
+  - Result: mixed state or projected subspace, depending on whether the result is known or not
+
+- Measurement **destroys superposition** and **introduces classical randomness**
+
+## Back to the quantum Circuit
+![Deutsch Quantum Circuit](deutsch2.png)
+
+- $|\pi_1\rangle = (H \otimes H)|1\rangle|0\rangle$
+- $|\pi_2\rangle = U_f(H \otimes H)|1\rangle|0\rangle$
+- $|\pi_3\rangle = (I \otimes H)U_f(H \otimes H)|1\rangle|0\rangle$
+
+## $|\pi_1\rangle$ 
+<div>
+$$
+\begin{align}
+(H \otimes H)|1\rangle|0\rangle &= H|1\rangle H|0\rangle = |-\rangle|+\rangle\\
+&=\frac{1}{\sqrt{2}}(|0\rangle-|1\rangle) \otimes \frac{1}{\sqrt{2}}(|0\rangle+|1\rangle) \\
+&=\frac{1}{\sqrt{2}}\frac{1}{\sqrt{2}}((|0\rangle-|1\rangle) \otimes (|0\rangle+|1\rangle))  \\
+&=\frac{1}{2}((|0\rangle-|1\rangle) \otimes (|0\rangle+|1\rangle))  \\
+&=\frac{1}{2}(|0\rangle-|1\rangle)|0\rangle+\frac{1}{2}(|0\rangle-|1\rangle)|1\rangle \\
+\end{align}
+$$
+</div>
+
+## $|\pi_2\rangle$ 
+
+$$\left|\pi_1\right\rangle=\frac{1}{2}(|0\rangle-|1\rangle)|0\rangle+\frac{1}{2}(|0\rangle-|1\rangle)|1\rangle$$
+
+$U_f$ applied:
+$$\begin{align}
+\left|\pi_2\right\rangle&=\frac{1}{2}(|0 \oplus f(0)\rangle-|1 \oplus f(0)\rangle)|0\rangle\\&+\frac{1}{2}(|0 \oplus f(1)\rangle-|1 \oplus f(1)\rangle)|1\rangle
+\end{align}$$
+
+## $|\pi_2\rangle$ 
+
+Using $|0 \oplus a\rangle-|1 \oplus a\rangle=(-1)^a(|0\rangle-|1\rangle)$
+
+$$
+\begin{align}
+\left|\pi_2\right\rangle&=\frac{1}{2}(-1)^{f(0)}(|0\rangle-|1\rangle)|0\rangle+\frac{1}{2}(-1)^{f(1)}(|0\rangle-|1\rangle)|1\rangle \\
+&=\frac{1}{2}(|0\rangle-|1\rangle)\left[(-1)^{f(0)}|0\rangle+(-1)^{f(1)}|1\rangle\right]\\
+&=\frac{1}{\sqrt{2}}(|0\rangle-|1\rangle)\frac{1}{\sqrt{2}}\left[(-1)^{f(0)}|0\rangle+(-1)^{f(1)}|1\rangle\right]\\
+&=\left|-\right\rangle\left(\frac{(-1)^{f(0)}|0\rangle+(-1)^{f(1)}|1\rangle}{\sqrt{2}}\right)
+\end{align}
+$$
+
+## $|\pi_2\rangle$ 
+
+$$
+\begin{align}
+\left|\pi_2\right\rangle&=\left|-\right\rangle\left(\frac{(-1)^{f(0)}|0\rangle+(-1)^{f(1)}|1\rangle}{\sqrt{2}}\right) \\
+&=\left|-\right\rangle(-1)^{f(0)} \frac{|0\rangle+(-1)^{f(1)-f(0)}|1\rangle}{\sqrt{2}} \\
+&=(-1)^{f(0)} \left|-\right\rangle\frac{|0\rangle+(-1)^{f(0) \oplus f(1)}|1\rangle}{\sqrt{2}} \\
+&= \begin{cases}(-1)^{f(0)}|-\rangle|+\rangle & \text { if } f(0) \oplus f(1)=0 \\ (-1)^{f(0)}|-\rangle|-\rangle & \text { if } f(0) \oplus f(1)=1\end{cases}
+\end{align}
+$$
+
+state of the top/right most qubit has changed while the state of the bottom/leftmost qubit remains the same: **phase kickback**
+
+## $|\pi_3\rangle$
+
+$$
+\begin{align}
+|\pi_3\rangle &= (I \otimes H)|\pi_2\rangle \\
+&= 
+\begin{cases}
+(I \otimes H)(-1)^{f(0)}|-\rangle|+\rangle & \text{if } f(0) \oplus f(1) = 0 \\
+(I \otimes H)(-1)^{f(0)}|-\rangle|-\rangle & \text{if } f(0) \oplus f(1) = 1
+\end{cases} \\
+&= 
+\begin{cases}
+(-1)^{f(0)}|-\rangle|0\rangle & \text{if } f(0) \oplus f(1) = 0 \\
+(-1)^{f(0)}|-\rangle|1\rangle & \text{if } f(0) \oplus f(1) = 1
+\end{cases}
+\end{align}
+$$
+
+- The **global phase** $(-1)^{f(0)}$ has no physical effect
+- Final measurement on the **second qubit** yields:
+  - $|0\rangle$ if $f$ is **constant**
+  - $|1\rangle$ if $f$ is **balanced**
+
+## Final State $|\pi_3\rangle$ for All Functions
+
+$$
+|\pi_3\rangle = (-1)^{f(0)}|-\rangle|f(0) \oplus f(1)\rangle
+$$
+
+
+#### 1. $f_1(a) = 0$
+$$
+f(0) \oplus f(1) = 0 \\
+|\pi_3\rangle = |-\rangle|0\rangle
+$$
+outcome: **$|0\rangle$ → constant**
+
+---
+
+## Final State $|\pi_3\rangle$ for All Functions
+
+$$
+|\pi_3\rangle = (-1)^{f(0)}|-\rangle|f(0) \oplus f(1)\rangle
+$$
+
+#### 2. $f_2(a): f(0)=0,\ f(1)=1$
+$$
+f(0) \oplus f(1) = 1 \\
+|\pi_3\rangle = |-\rangle|1\rangle
+$$
+outcome: **$|1\rangle$ → balanced**
+
+---
+
+## Final State $|\pi_3\rangle$ for All Functions
+
+$$
+|\pi_3\rangle = (-1)^{f(0)}|-\rangle|f(0) \oplus f(1)\rangle
+$$
+
+#### 3. $f_3(a): f(0)=1,\ f(1)=0$
+$$
+f(0) \oplus f(1) = 1 \\
+|\pi_3\rangle = -|-\rangle|1\rangle
+$$
+outcome: **$|1\rangle$ → balanced**
+
+---
+
+## Final State $|\pi_3\rangle$ for All Functions
+
+$$
+|\pi_3\rangle = (-1)^{f(0)}|-\rangle|f(0) \oplus f(1)\rangle
+$$
+
+
+#### 4. $f_4(a) = 1$
+$$
+f(0) \oplus f(1) = 0 \\
+|\pi_3\rangle = -|-\rangle|0\rangle
+$$
+outcome: **$|0\rangle$ → constant**
+
+## Implementation - Numpy
+
+```{python}
+#| echo: true
+import numpy as np
+
+
+u_zero = np.array([[1],[0]], dtype=complex)  # |0>
+u_one  = np.array([[0],[1]], dtype=complex)  # |1>
+
+initial_state = np.kron(u_zero, u_one) # why does this only owrk when the state is different then in the description ?
+
+H = (1/np.sqrt(2)) * np.array([[1, 1],
+                               [1,-1]], dtype=complex)
+I = np.eye(2, dtype=complex)
+
+p_0 = np.array([[1,0],[0,0]], dtype=complex)  # |0><0|
+p_1 = np.array([[0,0],[0,1]], dtype=complex)  # |1><1|
+
+def build_oracle_matrix(f):
+    """
+    U_f : |x,y> -> |x, y ⊕ f(x)>, for x,y ∈ {0,1}.
+    """
+    U = np.zeros((4, 4), dtype=complex)
+    for x in [0,1]:
+        for y in [0,1]:
+            in_idx = 2*x + y
+            out_y = (y + f(x)) % 2
+            out_idx = 2*x + out_y
+            U[out_idx, in_idx] = 1
+    return U
+
+
+# functions: f1=0, f2=x, f3=1-x, f4=1
+f1 = lambda x: 0
+f2 = lambda x: x
+f3 = lambda x: 1 - x
+f4 = lambda x: 1
+
+
+def deutsch(f):
+    U = build_oracle_matrix(f)
+    final_state = np.kron(H, I) @ U @ np.kron(H, H) @ initial_state  #again last operation is different then definiton? in def I x H and here H x I ????
+
+    
+    P_0 = np.kron(p_0, I) #again different then definiton? in def I x P
+    P_1 = np.kron(p_1, I) 
+    
+    prob_0 = np.linalg.norm(P_0 @ final_state)**2
+    prob_1 = np.linalg.norm(P_1 @ final_state)**2
+
+
+    if prob_0 > 0.99:
+        outcome = "constant"
+    elif prob_1 > 0.99:
+        outcome = "balanced"
+    else:
+        outcome = "error"
+    return outcome
+
+if __name__ == "__main__":
+
+    # Test each function
+    out1 = deutsch(f1)
+    out2 = deutsch(f2)
+    out3 = deutsch(f3)
+    out4 = deutsch(f4)
+
+    print("results:")
+    print(f"f1 -> {out1} (expected constant)")
+    print(f"f2 -> {out2} (expected balanced)")
+    print(f"f3 -> {out3} (expected balanced)")
+    print(f"f4 -> {out4} (expected constant)")
+```
+
+## Implementation - Quskit 
+
