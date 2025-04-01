@@ -56,12 +56,13 @@ For two bits equal to *XOR*
 
 <div>
 $$
-\begin{array}{c|c|c}
-\text { function } & \text { bits } & \text{XOR } \oplus\\
-\hline f_1 & 00 & 0\\
-f_2 & 01 & 1\\
-f_3 & 10 & 1\\
-f_4 & 11 & 0
+\begin{array}{c|c|c|c|c}
+a_1 & a_2 & \text { function } & \text { output bits } & \text{XOR } \oplus\\
+\hline 
+0 & 1 & f_1(a)=0 & f_1(0)f_1(1) = 00 & 0\\
+0 & 1 & f_2(a)=a & f_2(0)f_2(1) = 01 & 1\\
+0 & 1 & f_3(a)=\lnot a & f_3(0)f_3(1) = 10 & 1\\
+0 & 1 & f_54(a)=1 & f_4(0)f_4(1) = 11 & 0
 \end{array}
 $$
 </div>
@@ -250,7 +251,7 @@ $$
 ![](assets/imgs/blackbox.png){width=40% fig-align="center"}
 </div>
 
-- In classical computing: A query means evaluating $f(x)$ for a specific input $x$. This means in the worst case $2^n-1$ steps.
+- In classical computing: A query means evaluating $f(x)$ for a specific input $x$.
 
 ---
 
@@ -352,7 +353,7 @@ Flips $y$ when $x = 0$
 
 </div>
 
-#### 2. $f_2(x) = x$
+#### 4. $f_4(x) = 1$
 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0px align-items: center;">
 <div style="display: flex; align-items: center;">
 <div>
@@ -375,6 +376,26 @@ $$\Rightarrow U_{f_4} = I \otimes X = \begin{pmatrix}
 \end{pmatrix}$$
 </div>
 </div>
+
+---
+
+### Phase Kickback
+
+Given to bits $b$ and $c$: $$|b \oplus c\rangle=X^c|b\rangle$$ because for $c=0$: $|b \oplus c \rangle= |b \oplus 0 \rangle = |b \rangle = I|b \rangle = X^0|b \rangle$ and for $c=1$: $|b \oplus c \rangle= |b \oplus 1 \rangle = |\lnot b \rangle = X|b \rangle = X^1|b \rangle$ 
+<br/>
+  <br/>
+
+
+Thus
+
+$$\mathrm{U}_{\mathrm{f}}(|\mathrm{b}\rangle|a\rangle)=|\mathrm{b} \oplus f(a)\rangle|a\rangle=\left(X^{f(a)}|b\rangle\right)|a\rangle$$
+and by linearity:
+$$\mathrm{U}_{\mathrm{f}}(|\psi\rangle|a\rangle)=\left(\mathrm{X}^{\mathrm{f}(\mathrm{a})}|\psi\rangle\right)|a\rangle$$
+
+With $x|-\rangle=\left(\begin{array}{ll}0 & 1 \\ 1 & 0\end{array}\right)\binom{\frac{1}{\sqrt{2}}}{-\frac{1}{\sqrt{2}}}=\binom{-\frac{1}{\sqrt{2}}}{\frac{1}{\sqrt{2}}}=-\binom{\frac{1}{\sqrt{2}}}{-\frac{1}{\sqrt{2}}}=-|-\rangle=-1|-\rangle$ and  $I|-\rangle = 1|-\rangle$ 
+
+$$\mathrm{U}_{\mathrm{f}}(|-\rangle|a\rangle)=\left(X^{f(a)}|-\rangle\right)|a\rangle=(-1)^{f(a)}|-\rangle|a\rangle$$
+
 
 ---
 
@@ -421,37 +442,20 @@ $$\Rightarrow U_{f_4} = I \otimes X = \begin{pmatrix}
 ---
 
 ### $|\pi_1\rangle$ 
-<div>
 $$
 \begin{align}
 (H \otimes H)|1\rangle|0\rangle &= H|1\rangle H|0\rangle = |-\rangle|+\rangle\\
-&=\frac{1}{\sqrt{2}}(|0\rangle-|1\rangle) \otimes \frac{1}{\sqrt{2}}(|0\rangle+|1\rangle) \\
-&=\frac{1}{\sqrt{2}}\frac{1}{\sqrt{2}}((|0\rangle-|1\rangle) \otimes (|0\rangle+|1\rangle))  \\
-&=\frac{1}{2}((|0\rangle-|1\rangle) \otimes (|0\rangle+|1\rangle))  \\
-&=\frac{1}{2}(|0\rangle-|1\rangle)|0\rangle+\frac{1}{2}(|0\rangle-|1\rangle)|1\rangle \\
 \end{align}
 $$
-</div>
 
----
 
 ### $|\pi_2\rangle$ 
 
-$$\left|\pi_1\right\rangle=\frac{1}{2}(|0\rangle-|1\rangle)|0\rangle+\frac{1}{2}(|0\rangle-|1\rangle)|1\rangle$$
-
-$U_f$ applied:
-$$\begin{align}
-\left|\pi_2\right\rangle&=\frac{1}{2}(|0 \oplus f(0)\rangle-|1 \oplus f(0)\rangle)|0\rangle\\&+\frac{1}{2}(|0 \oplus f(1)\rangle-|1 \oplus f(1)\rangle)|1\rangle
-\end{align}$$
-
-Using $|0 \oplus a\rangle-|1 \oplus a\rangle=(-1)^a(|0\rangle-|1\rangle)$
-
 $$
 \begin{align}
-\left|\pi_2\right\rangle&=\frac{1}{2}(-1)^{f(0)}(|0\rangle-|1\rangle)|0\rangle+\frac{1}{2}(-1)^{f(1)}(|0\rangle-|1\rangle)|1\rangle \\
-&=\frac{1}{2}(|0\rangle-|1\rangle)\left[(-1)^{f(0)}|0\rangle+(-1)^{f(1)}|1\rangle\right]\\
-&=\frac{1}{\sqrt{2}}(|0\rangle-|1\rangle)\frac{1}{\sqrt{2}}\left[(-1)^{f(0)}|0\rangle+(-1)^{f(1)}|1\rangle\right]\\
-&=\left|-\right\rangle\left(\frac{(-1)^{f(0)}|0\rangle+(-1)^{f(1)}|1\rangle}{\sqrt{2}}\right)
+|\pi_2\rangle &= U_f (|-\rangle|+\rangle) = \frac{1}{\sqrt{2}} U_f(|-\rangle|0\rangle)+\frac{1}{\sqrt{2}} U_f(|-\rangle|1\rangle) \\
+&=  \frac{1}{\sqrt{2}} (-1)^{f(0)}(|-\rangle|0\rangle)+\frac{1}{\sqrt{2}} (-1)^{f(1)}(|-\rangle|1\rangle) \\
+&= |-\rangle \left(\frac{(-1)^{f(0)}|0\rangle+(-1)^{f(1)}|1\rangle}{\sqrt{2}}\right)
 \end{align}
 $$
 
@@ -496,7 +500,6 @@ $$
   - $|0\rangle$ if $f$ is **constant**
   - $|1\rangle$ if $f$ is **balanced**
 
-  <br/>
   <br/>
 
 
@@ -662,9 +665,13 @@ if __name__ == "__main__":
 
 # Outlook
 
+$f= \Sigma^n\rightarrow\Sigma$ is either balanced or constant
+
 <div>
 ![Deutsche Jozsa Algorithm](assets/imgs/deutsche_jozsa.png){width=70% fig-align="center"}
 </div>
+
+This means at least $2^n+1$ steps classical.
 
 # Thank You {.hidden-title}
 
