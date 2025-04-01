@@ -9,7 +9,7 @@ format:
     toc-depth: 2
     number-sections: false
     title-slide-attributes:
-      data-background-image: hund.png
+      data-background-image: assets/imgs/hund.png
       data-background-size: 40%
 author: "Pierre-Louis Suckrow"
 embed-resources: false
@@ -23,7 +23,7 @@ Tell if function $f: \Sigma \rightarrow \Sigma$ for $\Sigma=\{0,1\}$  is *balanc
 
 <div style="display: flex;">
 <div>
-![](constant.png)
+![](assets/imgs/constant.png)
 $$
 \begin{array}{c|c|c}
 a & f_1(a)& f_4(a)\\ \hline 
@@ -34,7 +34,7 @@ $$
 
 </div>
 <div>
-![](balanced.png)
+![](assets/imgs/balanced.png)
 $$
 \begin{array}{c|c|c}
 a & f_2(a)& f_3(a)\\ \hline 
@@ -66,12 +66,12 @@ $$
 
 # Classic Solution {.hidden-title}
 <div>
-![](classic.png){width=70% fig-align="center"}
+![](assets/imgs/classic.png){width=70% fig-align="center"}
 </div>
 
 ## Circuit
 
-![](classic_circuit.png) 
+![](assets/imgs/classic_circuit.png) 
 
 ## Implementation Python {auto-animate="true"} 
 
@@ -100,12 +100,12 @@ print(f"f1: {deutsch(f1)}, f2: {deutsch(f2)}, f3: {deutsch(f3)}, f4: {deutsch(f4
 
 # Quantum Solution {.hidden-title}
 <div>
-![](quantum.png){width=70% fig-align="center"}
+![](assets/imgs/quantum.png){width=70% fig-align="center"}
 </div>
 
 ## Circuit
 
-![Deutsch Quantum Circuit](deutsch.png)
+![Deutsch Quantum Circuit](assets/imgs/deutsch.png)
 
 - Inital State $|1\rangle \otimes |0\rangle = |1\rangle|0\rangle = |1\rangle0\rangle$
 - Circuit: $\begin{cases}0 & |(I \otimes P_0)(I \otimes H) \times U_f \times (H \otimes H)|10\rangle|^2 = 1\\ 1 & |(I \otimes P_1)(I \otimes H) \times U_f \times (H \otimes H)|10\rangle|^2 = 1\end{cases}$
@@ -152,13 +152,13 @@ $$
 <div style="overflow: hidden;">
 <h3 style="  text-align: center;">$|0\rangle=H|+\rangle$</h3>
 <div style="">
-<iframe src="bloch_sphere_0.html" width="800" height="500" frameborder="0"></iframe>
+<iframe src="assets/embedded/bloch_sphere_0.html" width="800" height="500" frameborder="0"></iframe>
 </div>
 </div>
 <div style="overflow: hidden;">
 <h3 style="  text-align: center;">$H|0\rangle=|+\rangle$</h3>
 <div style="">
-<iframe src="bloch_sphere_H0.html" width="800" height="500" frameborder="0"></iframe>
+<iframe src="assets/embedded/bloch_sphere_H0.html" width="800" height="500" frameborder="0"></iframe>
 </div>
 </div>
 </div>
@@ -184,13 +184,13 @@ $$
 <div style="overflow: hidden;">
 <h3 style="  text-align: center;">$|1\rangle=H|-\rangle$</h3>
 <div style="">
-<iframe src="bloch_sphere_1.html" width="800" height="500" frameborder="0"></iframe>
+<iframe src="assets/embedded/bloch_sphere_1.html" width="800" height="500" frameborder="0"></iframe>
 </div>
 </div>
 <div style="overflow: hidden;">
 <h3 style="  text-align: center;">$H|1\rangle=|-\rangle$</h3>
 <div style="">
-<iframe src="bloch_sphere_H1.html" width="800" height="500" frameborder="0"></iframe>
+<iframe src="assets/embedded/bloch_sphere_H1.html" width="800" height="500" frameborder="0"></iframe>
 </div>
 </div>
 </div>
@@ -244,7 +244,7 @@ $$
 - A **query** accesses hidden information about a function $f: \{0,1\}^n \rightarrow \{0,1\}$. Asking for information from a "black-box"
 
 <div>
-![](blackbox.png){width=40% fig-align="center"}
+![](assets/imgs/blackbox.png){width=40% fig-align="center"}
 </div>
 
 - In classical computing: A query means evaluating $f(x)$ for a specific input $x$. This means in the worst case $2^n-1$ steps.
@@ -256,7 +256,7 @@ $$
 
 - Core idea: instead of checking inputs one-by-one, a quantum algorithm queries **all inputs in superposition**
 
-![Unitary query gates](oracle.png)
+![Unitary query gates](assets/imgs/oracle.png)
 
 - Standard form (bit flip oracle):  
   $$
@@ -403,7 +403,7 @@ $$\Rightarrow U_{f_4} = I \otimes X = \begin{pmatrix}
 
 ## Back to the quantum Circuit
 
-![Deutsch Quantum Circuit](deutsch2.png)
+![Deutsch Quantum Circuit](assets/imgs/deutsch2.png)
 
 
 - $|\pi_1\rangle = (H \otimes H)|1\rangle|0\rangle$
@@ -647,13 +647,13 @@ if __name__ == "__main__":
 # Outlook
 
 <div>
-![Deutsche Jozsa Algorithm](deutsche_jozsa.png){width=70% fig-align="center"}
+![Deutsche Jozsa Algorithm](assets/imgs/deutsche_jozsa.png){width=70% fig-align="center"}
 </div>
 
 # Thank You {.hidden-title}
 
 <div>
-![](thanks.png){width=70% fig-align="center"}
+![](assets/imgs/thanks.png){width=70% fig-align="center"}
 </div>
 
 
